@@ -5,3 +5,28 @@ rule fastqc:
     output: expand("{qc_reports}{sample}_fastqc.html", qc_reports=config["qc_reports"], sample=config["sample"])
     shell: 
         "fastqc {input} -o {config[qc_reports]}"
+
+rule trim_reads:
+    input:
+        fq1 = "{data}{sample}_1.fastq.gz",
+        fq2 = "{data}{sample}_2.fastq.gz"
+    output:
+        fq1_trimmed = "{trimmed_data}{sample}_1_trimmed.fastq.gz",
+        fq2_trimmed = "{trimmed_data}{sample}_2_trimmed.fastq.gz",
+        fq1_unpaired = "{trimmed_data}{sample}_1_unpaired.fastq.gz",
+        fq2_unpaired = "{trimmed_data}{sample}_2_unpaired.fastq.gz"
+    params:
+        adapters = "TruSeq3-PE.fa",
+        quality = 25,
+        minlen = 20
+    threads: 4
+    shell:
+        """
+        trimmomatic PE -threads {threads} \
+        {input.fq1} {input.fq2} \
+        {output.fq1_trimmed} {output.fq1_unpaired} \
+        {output.fq2_trimmed} {output.fq2_unpaired} \
+        ILLUMINACLIP:{params.adapters}:2:30:10 \
+        LEADING:{params.quality} TRAILING:{params.quality} \
+        SLIDINGWINDOW:4:{params.quality} MINLEN:{params.minlen}
+        """
