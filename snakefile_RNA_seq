@@ -1,0 +1,7 @@
+configfile: "config.yaml"
+
+rule fastqc:
+    input: expand("{data}{sample}.fastq.gz", data=config["data"], sample=config["sample"])
+    output: expand("{qc_reports}{sample}_fastqc.html", qc=config["qc_reports"], sample=config["sample"])
+    shell: 
+        "fastqc {input} -o {config[qc_reports]}"
