@@ -30,3 +30,22 @@ rule trim_reads:
         LEADING:{params.quality} TRAILING:{params.quality} \
         SLIDINGWINDOW:4:{params.quality} MINLEN:{params.minlen}
         """
+
+rule align_reads:
+    input:
+        fq1 = "{trimmed_data}{sample}_1_trimmed.fastq.gz",
+        fq2 = "{trimmed_data}{sample}_2_trimmed.fastq.gz"
+    output:
+        "{aligned_data}{sample}.bam"
+    params:
+        star_index = config["star_index"]
+    threads: 4
+    shell:
+        """
+        STAR --runThreadN {threads} \
+             --genomeDir {params.star_index} \
+             --readFilesIn {input.fq1} {input.fq2} \
+             --outFileNamePrefix {output}.temp \
+             --outSAMtype BAM SortedByCoordinate
+        mv {output}.tempAligned.sortedByCoord.out.bam {output}
+        """
