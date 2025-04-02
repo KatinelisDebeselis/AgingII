@@ -8,3 +8,47 @@ SAMPLES = ["SRR1979874", "SRR1979880", "SRR1979877", "SRR1979883",
            "SRR5642565", "SRR5642566", "SRR5642568", "SRR5642569",
            "SRR5642571", "SRR5642572"]
 
+rule fastqc:
+    input:
+        "raw/{sample}.fastq.gz"
+    output:
+        "qc/{sample}_fastqc.html"
+    shell:
+        "fastqc {input} -o qc/"
+
+rule trim:
+    input:
+        "raw/{sample}.fastq.gz"
+    output:
+        "trimmed/{sample}.fastq.gz"
+    shell:
+        "trimmomatic SE -phred33 {input} {output} SLIDINGWINDOW:4:20 MINLEN:25"
+
+rule align:
+    input:
+        "trimmed/{sample}.fastq.gz"
+    output:
+        "aligned/{sample}.bam"
+    params:
+        index="data/reference_genome/mm10"
+    shell:
+        "bowtie2 -x {params.index} -U {input} | samtools sort -o {output}"
+
+rule dedup:
+    input:
+        "aligned/{sample}.bam"
+    output:
+        "filtered/{sample}_dedup.bam"
+    shell:
+        "picard MarkDuplicates I={input} O={output} REMOVE_DUPLICATES=true"
+
+rule call_peaks:
+    input:
+        "filtered/{sample}_dedup.bam"
+    output:
+        "peaks/{sample}_peaks.narrowPeak"
+    shell:
+        "macs2 callpeak -t {input} -f BAM -g mm -n {wildcards.sample} --outdir peaks/"
+
+
+
