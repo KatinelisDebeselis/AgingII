@@ -4,7 +4,7 @@ rule fastqc:
     input: expand("{data}{sample}.fastq.gz", data=config["data"], sample=config["sample"])
     output: expand("{qc_reports}{sample}_fastqc.html", qc_reports=config["qc_reports"], sample=config["sample"])
     shell: 
-        "fastqc {input} -o {config[qc_reports]}"
+        "fastqc {input} -o {output}"
 
 rule trim_reads:
     input:
@@ -45,7 +45,13 @@ rule align_reads:
         STAR --runThreadN {threads} \
              --genomeDir {params.star_index} \
              --readFilesIn {input.fq1} {input.fq2} \
-             --outFileNamePrefix {output}.temp \
-             --outSAMtype BAM SortedByCoordinate
-        mv {output}.tempAligned.sortedByCoord.out.bam {output}
+             --readFilesCommand zcat \
+             --outSAMtype BAM SortedByCoordinate \
+             --outFileNamePrefix {wildcards.sample}.
+        mv {wildcards.sample}.Aligned.sortedByCoord.out.bam {output}
         """
+rule count_matrix:
+    input: expand("{aligned_data}{sample}.bam", aligned_data=config["aligned_data"], sample=config["sample"])
+    output: "{results}/count_matrix.txt"
+    shell:
+        "featureCounts -a {config[annotation_gtf]} -o {output} {input}"
