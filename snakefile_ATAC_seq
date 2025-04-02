@@ -1,0 +1,10 @@
+configfile: "config.yaml"
+
+rule all:
+    input:
+        expand("peaks/{sample}_peaks.narrowPeak", sample=SAMPLES)
+
+SAMPLES = ["SRR1979874", "SRR1979880", "SRR1979877", "SRR1979883",
+           "SRR5642565", "SRR5642566", "SRR5642568", "SRR5642569",
+           "SRR5642571", "SRR5642572"]
+
