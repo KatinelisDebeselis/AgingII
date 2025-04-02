@@ -1,4 +1,4 @@
-configfile: "config.yaml"
+configfile: "config1.yaml"
 
 rule all:
     input:
@@ -10,7 +10,7 @@ SAMPLES = ["SRR1979874", "SRR1979880", "SRR1979877", "SRR1979883",
 
 rule fastqc:
     input:
-        "raw/{sample}.fastq.gz"
+        "data/{sample}.fastq.gz"
     output:
         "qc/{sample}_fastqc.html"
     shell:
@@ -18,7 +18,7 @@ rule fastqc:
 
 rule trim:
     input:
-        "raw/{sample}.fastq.gz"
+        "data/{sample}.fastq.gz"
     output:
         "trimmed/{sample}.fastq.gz"
     shell:
@@ -30,7 +30,7 @@ rule align:
     output:
         "aligned/{sample}.bam"
     params:
-        index="data/reference_genome/mm10"
+        index="reference_genome/mm10"
     shell:
         "bowtie2 -x {params.index} -U {input} | samtools sort -o {output}"
 
