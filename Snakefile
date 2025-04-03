@@ -1,11 +1,9 @@
 configfile: "config1.yaml"
 
-SAMPLES = config["samples"]["single"] + config["samples"]["paired"]
+SAMPLES = config["sample"]
 
 rule all:
-
     input:
-
         expand("peaks/{sample}_peaks.narrowPeak", sample=SAMPLES)
 
 
