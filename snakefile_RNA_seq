@@ -1,10 +1,12 @@
 configfile: "config.yaml"
 
+SAMPLES = config["sample"]
+
 rule all:
     input:
-        expand("{qc_reports}/{sample}_1_fastqc.html", qc_reports=config["qc_reports"], sample=config["sample"]),
-        expand("{qc_reports}/{sample}_2_fastqc.html", qc_reports=config["qc_reports"], sample=config["sample"]),
-        expand("{aligned_data}/{sample}.bam", aligned_data=config["aligned_data"], sample=config["sample"]),
+        expand("{qc_reports}/{sample}_1_fastqc.html", qc_reports=config["qc_reports"], sample=SAMPLES),
+        expand("{qc_reports}/{sample}_2_fastqc.html", qc_reports=config["qc_reports"], sample=SAMPLES),
+        expand("{aligned_data}/{sample}.bam", aligned_data=config["aligned_data"], sample=SAMPLES),
         f"{config['results']}/count_matrix.txt",
         f"{config['results']}/multiqc_report.html"
 
@@ -42,10 +44,10 @@ rule trim_reads:
 
 rule align_reads:
     input:
-        fq1 = "{trimmed_data}/{sample}_1_val_1.fq.gz",
-        fq2 = "{trimmed_data}/{sample}_2_val_2.fq.gz"
+        fq1 = lambda wc: f"{config['trimmed_data']}/{wc.sample}_1_val_1.fq.gz",
+        fq2 = lambda wc: f"{config['trimmed_data']}/{wc.sample}_2_val_2.fq.gz"
     output:
-        "{aligned_data}/{sample}.bam"
+        bam = "{aligned_data}/{sample}.bam"
     params:
         hisat2_index = config["hisat2_index"]
     threads: 4
@@ -55,24 +57,24 @@ rule align_reads:
                -x {params.hisat2_index} \
                -1 {input.fq1} -2 {input.fq2} \
         | samtools view -bS - \
-        | samtools sort -o {output}
+        | samtools sort -o {output.bam}
         """
 
 rule count_matrix:
     input:
-        expand("{aligned_data}/{sample}.bam", aligned_data=config["aligned_data"], sample=config["sample"])
+        bams = expand("{aligned_data}/{sample}.bam", aligned_data=config["aligned_data"], sample=SAMPLES)
     output:
         f"{config['results']}/count_matrix.txt"
     shell:
         """
-        featureCounts -a {config[annotation_gtf]} -o {output} {input}
+        featureCounts -a {config[annotation_gtf]} -o {output} {input.bams}
         """
 
 rule multiqc:
     input:
-        fastqc = expand("{qc_reports}/{sample}_1_fastqc.html", qc_reports=config["qc_reports"], sample=config["sample"]) +
-                 expand("{qc_reports}/{sample}_2_fastqc.html", qc_reports=config["qc_reports"], sample=config["sample"]),
-        bam = expand("{aligned_data}/{sample}.bam", aligned_data=config["aligned_data"], sample=config["sample"])
+        fastqc = expand("{qc_reports}/{sample}_1_fastqc.html", qc_reports=config["qc_reports"], sample=SAMPLES) +
+                 expand("{qc_reports}/{sample}_2_fastqc.html", qc_reports=config["qc_reports"], sample=SAMPLES),
+        bam = expand("{aligned_data}/{sample}.bam", aligned_data=config["aligned_data"], sample=SAMPLES)
     output:
         f"{config['results']}/multiqc_report.html"
     shell:
