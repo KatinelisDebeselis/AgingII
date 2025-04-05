@@ -1,11 +1,9 @@
-data: "data/"
-sample: ["SRR1979874", "SRR1979877", "SRR1979880", "SRR1979883", "SRR5642565_1", "SRR5642565_2", "SRR5642566_1", 
-         "SRR5642566_2", "SRR5642568_1", "SRR5642568_2", "SRR5642569_1", "SRR5642569_2", "SRR5642571_1", 
-         "SRR5642571_2", "SRR5642572_1", "SRR5642572_2"]
-qc_reports: "qc_reports/"
-trimmed_data: "trimmed/"
-aligned_data: "aligned/"
-results: "results/"
+data: "data"
+sample: ["SRR5642565", "SRR5642566", "SRR5642568", "SRR5642569", "SRR5642571", "SRR5642572"]
+qc_reports: "qc_reports"
+trimmed_data: "trimmed"
+aligned_data: "aligned"
+results: "results"
 reference_genome: "data/reference_genome"
-star_index: "data/star_index/"
+hisat2_index: "data/reference_genome/index"
 annotation_gtf: "data/reference_genome/annotation.gtf"

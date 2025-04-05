@@ -1,57 +1,81 @@
 configfile: "config.yaml"
 
+rule all:
+    input:
+        expand("{qc_reports}/{sample}_1_fastqc.html", qc_reports=config["qc_reports"], sample=config["sample"]),
+        expand("{qc_reports}/{sample}_2_fastqc.html", qc_reports=config["qc_reports"], sample=config["sample"]),
+        expand("{aligned_data}/{sample}.bam", aligned_data=config["aligned_data"], sample=config["sample"]),
+        f"{config['results']}/count_matrix.txt",
+        f"{config['results']}/multiqc_report.html"
+
 rule fastqc:
-    input: expand("{data}{sample}.fastq.gz", data=config["data"], sample=config["sample"])
-    output: expand("{qc_reports}{sample}_fastqc.html", qc_reports=config["qc_reports"], sample=config["sample"])
-    shell: 
-        "fastqc {input} -o {output}"
+    input:
+        fq1 = lambda wc: f"{config['data']}/{wc.sample}_1.fastq.gz",
+        fq2 = lambda wc: f"{config['data']}/{wc.sample}_2.fastq.gz"
+    output:
+        html1 = "{qc_reports}/{sample}_1_fastqc.html",
+        html2 = "{qc_reports}/{sample}_2_fastqc.html"
+    shell:
+        """
+        fastqc {input.fq1} {input.fq2} -o {config[qc_reports]}
+        """
 
 rule trim_reads:
     input:
-        fq1 = "{data}{sample}_1.fastq.gz",
-        fq2 = "{data}{sample}_2.fastq.gz"
+        fq1 = lambda wc: f"{config['data']}/{wc.sample}_1.fastq.gz",
+        fq2 = lambda wc: f"{config['data']}/{wc.sample}_2.fastq.gz"
     output:
-        fq1_trimmed = "{trimmed_data}{sample}_1_trimmed.fastq.gz",
-        fq2_trimmed = "{trimmed_data}{sample}_2_trimmed.fastq.gz",
-        fq1_unpaired = "{trimmed_data}{sample}_1_unpaired.fastq.gz",
-        fq2_unpaired = "{trimmed_data}{sample}_2_unpaired.fastq.gz"
+        fq1_trimmed = "{trimmed_data}/{sample}_1_val_1.fq.gz",
+        fq2_trimmed = "{trimmed_data}/{sample}_2_val_2.fq.gz"
     params:
-        adapters = "TruSeq3-PE.fa",
         quality = 25,
-        minlen = 20
+        length = 20
     threads: 4
     shell:
         """
-        trimmomatic PE -threads {threads} \
-        {input.fq1} {input.fq2} \
-        {output.fq1_trimmed} {output.fq1_unpaired} \
-        {output.fq2_trimmed} {output.fq2_unpaired} \
-        ILLUMINACLIP:{params.adapters}:2:30:10 \
-        LEADING:{params.quality} TRAILING:{params.quality} \
-        SLIDINGWINDOW:4:{params.quality} MINLEN:{params.minlen}
+        trim_galore --paired --quality {params.quality} --length {params.length} \
+        --output_dir . \
+        {input.fq1} {input.fq2}
+        mv {wildcards.sample}_1_val_1.fq.gz {output.fq1_trimmed}
+        mv {wildcards.sample}_2_val_2.fq.gz {output.fq2_trimmed}
         """
 
 rule align_reads:
     input:
-        fq1 = "{trimmed_data}{sample}_1_trimmed.fastq.gz",
-        fq2 = "{trimmed_data}{sample}_2_trimmed.fastq.gz"
+        fq1 = "{trimmed_data}/{sample}_1_val_1.fq.gz",
+        fq2 = "{trimmed_data}/{sample}_2_val_2.fq.gz"
     output:
-        "{aligned_data}{sample}.bam"
+        "{aligned_data}/{sample}.bam"
     params:
-        star_index = config["star_index"]
+        hisat2_index = config["hisat2_index"]
     threads: 4
     shell:
         """
-        STAR --runThreadN {threads} \
-             --genomeDir {params.star_index} \
-             --readFilesIn {input.fq1} {input.fq2} \
-             --readFilesCommand zcat \
-             --outSAMtype BAM SortedByCoordinate \
-             --outFileNamePrefix {wildcards.sample}.
-        mv {wildcards.sample}.Aligned.sortedByCoord.out.bam {output}
+        hisat2 -p {threads} \
+               -x {params.hisat2_index} \
+               -1 {input.fq1} -2 {input.fq2} \
+        | samtools view -bS - \
+        | samtools sort -o {output}
         """
+
 rule count_matrix:
-    input: expand("{aligned_data}{sample}.bam", aligned_data=config["aligned_data"], sample=config["sample"])
-    output: "{results}/count_matrix.txt"
+    input:
+        expand("{aligned_data}/{sample}.bam", aligned_data=config["aligned_data"], sample=config["sample"])
+    output:
+        f"{config['results']}/count_matrix.txt"
     shell:
-        "featureCounts -a {config[annotation_gtf]} -o {output} {input}"
+        """
+        featureCounts -a {config[annotation_gtf]} -o {output} {input}
+        """
+
+rule multiqc:
+    input:
+        fastqc = expand("{qc_reports}/{sample}_1_fastqc.html", qc_reports=config["qc_reports"], sample=config["sample"]) +
+                 expand("{qc_reports}/{sample}_2_fastqc.html", qc_reports=config["qc_reports"], sample=config["sample"]),
+        bam = expand("{aligned_data}/{sample}.bam", aligned_data=config["aligned_data"], sample=config["sample"])
+    output:
+        f"{config['results']}/multiqc_report.html"
+    shell:
+        """
+        multiqc {config[qc_reports]} {config[aligned_data]} -o {config[results]}
+        """
