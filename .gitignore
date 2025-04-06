@@ -2,3 +2,6 @@
 data/*
 qc_reports/*
 *.snakemake.log
+*.fq.gz
+.snakemake
+*report.txt
