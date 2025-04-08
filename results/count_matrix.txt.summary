@@ -1,0 +1,15 @@
+Status	aligned/SRR5642565.bam	aligned/SRR5642566.bam	aligned/SRR5642568.bam	aligned/SRR5642569.bam	aligned/SRR5642571.bam	aligned/SRR5642572.bam
+Assigned	12713170	14090066	12470195	15713414	17639637	14009510
+Unassigned_Unmapped	16381890	15947918	14778575	17999538	22323950	17176359
+Unassigned_Read_Type	0	0	0	0	0	0
+Unassigned_Singleton	0	0	0	0	0	0
+Unassigned_MappingQuality	0	0	0	0	0	0
+Unassigned_Chimera	0	0	0	0	0	0
+Unassigned_FragmentLength	0	0	0	0	0	0
+Unassigned_Duplicate	0	0	0	0	0	0
+Unassigned_MultiMapping	7442935	8069050	7285486	8911404	9885548	7908800
+Unassigned_Secondary	0	0	0	0	0	0
+Unassigned_NonSplit	0	0	0	0	0	0
+Unassigned_NoFeatures	45570493	46973900	40829143	54617439	55587695	49984206
+Unassigned_Overlapping_Length	0	0	0	0	0	0
+Unassigned_Ambiguity	277670	297280	229638	356083	407737	301261

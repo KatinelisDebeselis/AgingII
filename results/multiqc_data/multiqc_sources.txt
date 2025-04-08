@@ -1,0 +1,13 @@
+Module	Section	Sample Name	Source
+FastQC	all_sections	SRR5642571_1	/scratch/lustre/home/pasu0334/AgingII/qc_reports/SRR5642571_1_fastqc.zip
+FastQC	all_sections	SRR5642572_1	/scratch/lustre/home/pasu0334/AgingII/qc_reports/SRR5642572_1_fastqc.zip
+FastQC	all_sections	SRR5642569_2	/scratch/lustre/home/pasu0334/AgingII/qc_reports/SRR5642569_2_fastqc.zip
+FastQC	all_sections	SRR5642568_2	/scratch/lustre/home/pasu0334/AgingII/qc_reports/SRR5642568_2_fastqc.zip
+FastQC	all_sections	SRR5642565_2	/scratch/lustre/home/pasu0334/AgingII/qc_reports/SRR5642565_2_fastqc.zip
+FastQC	all_sections	SRR5642566_2	/scratch/lustre/home/pasu0334/AgingII/qc_reports/SRR5642566_2_fastqc.zip
+FastQC	all_sections	SRR5642569_1	/scratch/lustre/home/pasu0334/AgingII/qc_reports/SRR5642569_1_fastqc.zip
+FastQC	all_sections	SRR5642568_1	/scratch/lustre/home/pasu0334/AgingII/qc_reports/SRR5642568_1_fastqc.zip
+FastQC	all_sections	SRR5642571_2	/scratch/lustre/home/pasu0334/AgingII/qc_reports/SRR5642571_2_fastqc.zip
+FastQC	all_sections	SRR5642572_2	/scratch/lustre/home/pasu0334/AgingII/qc_reports/SRR5642572_2_fastqc.zip
+FastQC	all_sections	SRR5642565_1	/scratch/lustre/home/pasu0334/AgingII/qc_reports/SRR5642565_1_fastqc.zip
+FastQC	all_sections	SRR5642566_1	/scratch/lustre/home/pasu0334/AgingII/qc_reports/SRR5642566_1_fastqc.zip
