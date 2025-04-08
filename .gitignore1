@@ -1,8 +1,0 @@
-data/*
-*.fastq.gz
-
-*.log
-*.tmp
-
-envs/*
-qc/*

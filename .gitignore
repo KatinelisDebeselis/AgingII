@@ -5,3 +5,4 @@ qc_reports/*
 *.fq.gz
 .snakemake
 *report.txt
+logs
