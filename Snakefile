@@ -1,6 +1,7 @@
 configfile: "config1.yaml"
 
-SAMPLES = config["sample"]
+SAMPLES = config["sample"]["single"]
+GENOME = "reference_genome/mm10"
 
 rule all:
     input:
@@ -10,10 +11,12 @@ rule all:
 rule fastqc:
     input:
         "data/{sample}.fastq.gz"
-    output:
-        "qc/{sample}_fastqc.html"
+     output:
+        html="results/fastqc/{sample}_fastqc.html",
+        zip="results/fastqc/{sample}_fastqc.zip"
+    threads: 2
     shell:
-        "fastqc {input} -o qc/"
+        "mkdir -p results/fastqc && fastqc -t {threads} {input} --outdir results/fastqc"
 
 rule trim:
     input:
